@@ -12,4 +12,7 @@ def cross_entropy_cost(predict, target, derivative=False):
     return -1 * np.sum(target * np.log(predict)) / len(target)
 
 def binary_cross_entropy_cost(predict, target, derivative=False):
-  pass
+  if derivative:
+    return -1 * ((target / predict) - ((1 - target) / (1 - predict)))
+  else:
+    return -1 * np.sum(target * np.log(predict) + (1 - target) * np.log(1 - predict)) / len(target)
