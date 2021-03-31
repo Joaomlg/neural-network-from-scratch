@@ -5,7 +5,7 @@ from data import MNIST
 from multilayer_perceptron import MLP
 from multilayer_perceptron.layers import InputLayer, DenseLayer, OutputLayer
 from multilayer_perceptron.activations import tanh, softmax, identity
-from multilayer_perceptron.costs import mean_square_cost
+from multilayer_perceptron.costs import mean_square_cost, cross_entropy_cost
 
 def one_hot_encode(data):
   encoded = np.zeros([len(data), 10])
