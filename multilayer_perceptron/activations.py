@@ -31,9 +31,9 @@ def relu(x, derivative=False):
     return np.maximum(0, x)
 
 def softmax(x, derivative=False):
-  e = np.exp(x - np.max(x))
-  s = np.sum(e, axis=1, keepdims=True)
   if derivative:
-    return e / s * (1 - e / s)
+    return softmax(x) * (1 - softmax(x))
   else:
+    e = np.exp(x - np.max(x))
+    s = np.sum(e, axis=1, keepdims=True)
     return e / s
