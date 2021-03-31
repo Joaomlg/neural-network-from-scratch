@@ -8,7 +8,7 @@ def identity(x, derivative=False):
 
 def step(x, derivative=False):
   if derivative:
-    return 1.0 * (x == 0)
+    return 1.0
   else:
     return np.heaviside(x, 0)
 
