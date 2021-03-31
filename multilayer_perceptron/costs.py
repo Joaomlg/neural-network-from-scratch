@@ -7,7 +7,7 @@ def mean_square_cost(predict, target, derivative=False):
 
 def cross_entropy_cost(predict, target, derivative=False):
   if derivative:
-    return -1 * ((target / predict) - ((1 - target) / (1 - predict)))
+    return -1 * (target / predict)
   else:
     return -1 * np.sum(target * np.log(predict)) / len(target)
 
