@@ -5,7 +5,7 @@ from data import MNIST
 from multilayer_perceptron import MLP
 from multilayer_perceptron.layers import InputLayer, DenseLayer, OutputLayer
 from multilayer_perceptron.activations import tanh, softmax, identity
-from multilayer_perceptron.costs import mean_square_cost, cross_entropy_cost
+from multilayer_perceptron.costs import mean_square_cost, binary_cross_entropy_cost
 
 def one_hot_encode(data):
   encoded = np.zeros([len(data), 10])
@@ -34,7 +34,7 @@ test_data = (
 mlp = MLP()
 mlp.add(InputLayer(784))
 mlp.add(DenseLayer(30, tanh))
-mlp.add(OutputLayer(10, softmax, cross_entropy_cost))
+mlp.add(OutputLayer(10, softmax, binary_cross_entropy_cost))
 mlp.initialize_random_weights()
 mlp.fit(
   train_data=train_data,
