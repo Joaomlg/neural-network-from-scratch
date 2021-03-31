@@ -34,7 +34,7 @@ test_data = (
 mlp = MLP()
 mlp.add(InputLayer(784))
 mlp.add(DenseLayer(30, tanh))
-mlp.add(OutputLayer(10, softmax, mean_square_cost))
+mlp.add(OutputLayer(10, softmax, cross_entropy_cost))
 mlp.initialize_random_weights()
 mlp.fit(
   train_data=train_data,
