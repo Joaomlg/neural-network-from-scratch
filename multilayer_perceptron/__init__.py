@@ -6,8 +6,8 @@ from multilayer_perceptron.layers import *
 class MLP:
   def __init__(self):
     self.layers = []
-    self.train_loss_per_epoch = []
-    self.train_accu_per_epoch = []
+    self.train_loss_per_iter = []
+    self.train_accu_per_iter = []
     self.valid_loss_per_epoch = []
     self.valid_accu_per_epoch = []
 
@@ -44,13 +44,13 @@ class MLP:
           self.backpropagation(y)
           self.update_weights(learning_rate)
 
-        output_layer = self.layers[-1]
+          output_layer = self.layers[-1]
 
-        train_loss = output_layer.calculate_loss(y)
-        train_accuracy = output_layer.calculate_accuracy(y)
-        
-        self.train_loss_per_epoch.append(train_loss)
-        self.train_accu_per_epoch.append(train_accuracy)
+          train_loss = output_layer.calculate_loss(y)
+          train_accuracy = output_layer.calculate_accuracy(y)
+          
+          self.train_loss_per_iter.append(train_loss)
+          self.train_accu_per_iter.append(train_accuracy)
 
         print('\rEpoch: {epoch}/{epochs}\tTrain: {train_loss:.3f} | {train_accuracy:.3f}'.format(**locals()), end='')
 
