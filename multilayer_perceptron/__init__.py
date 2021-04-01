@@ -14,6 +14,11 @@ class MLP:
   def add(self, layer: Layer):
     if not isinstance(layer, Layer):
       raise TypeError(f'layer param should be \'{type(Layer)}\' type, not \'{type(layer)}\'')
+    
+    if len(self.layers) > 0:
+      layer.prev_layer = self.layers[-1]
+      self.layers[-1].next_layer = layer
+
     self.layers.append(layer)
   
   def initialize_random_weights(self):
@@ -21,15 +26,15 @@ class MLP:
     for i in range(1, num_of_layers):
       prev_layer = self.layers[i - 1]
       curr_layer = self.layers[i]
+        
+      if isinstance(curr_layer, (DenseLayer, OutputLayer)):
+        weights_shape = prev_layer.size, curr_layer.size
+        random_weights = np.random.uniform(-0.5, 0.5, weights_shape)
+        curr_layer.weights = random_weights
 
-      weights_shape = prev_layer.size, curr_layer.size
-      random_weights = np.random.uniform(-0.5, 0.5, weights_shape)
-
-      bias_size = curr_layer.size
-      random_bias = np.random.uniform(-0.5, 0.5, bias_size)
-
-      curr_layer.weights = random_weights
-      curr_layer.bias = random_bias
+        bias_size = curr_layer.size
+        random_bias = np.random.uniform(-0.5, 0.5, bias_size)
+        curr_layer.bias = random_bias
 
   def fit(self, train_data, epochs, learning_rate, batch_size, validation_data=None):
     xtrain, ytrain = train_data
@@ -68,6 +73,8 @@ class MLP:
           print('\tValid: {valid_loss:.3f} | {valid_accuracy:.3f}'.format(**locals()), end='')
     except KeyboardInterrupt:
       print('\nStoped!')
+    else:
+      print('\nDone.')
 
   @staticmethod
   def split_data_in_batchs(data_size, batch_size, random=True):
@@ -79,39 +86,27 @@ class MLP:
     return batchs
 
   def feedfoward(self, input_data):
-    prev_layer = None
     for layer in self.layers:
       if isinstance(layer, InputLayer):
         layer.foward(input_data)
-      elif isinstance(layer, (DenseLayer, OutputLayer)):
-        layer.foward(prev_layer)
       else:
-        raise TypeError(f'Unexpected layer type: \'{type(layer)}\'')
-      prev_layer = layer
+        layer.foward()
   
   def backpropagation(self, target):
-    next_layer = None
     for layer in reversed(self.layers):
       if isinstance(layer, OutputLayer):
         layer.backward(target)
-      elif isinstance(layer, DenseLayer):
-        layer.backward(next_layer)
       elif isinstance(layer, InputLayer):
         break
       else:
-        raise TypeError(f'Unexpected layer type: \'{type(layer)}\'')
-      next_layer = layer
+        layer.backward()
   
   def update_weights(self, learning_rate):
-    prev_layer = None
     for layer in self.layers:
       if isinstance(layer, InputLayer):
         pass
-      elif isinstance(layer, (DenseLayer, OutputLayer)):
-        layer.update_weights(prev_layer, learning_rate)
       else:
-        raise TypeError(f'Unexpected layer type: \'{type(layer)}\'')
-      prev_layer = layer
+        layer.update_weights(learning_rate)
 
   def predict(self, input_data):
     pass

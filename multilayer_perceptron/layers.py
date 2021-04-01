@@ -2,7 +2,9 @@ import numpy as np
 
 class Layer:
   def __init__(self):
+    self.prev_layer = None
     self.output = None
+    self.next_layer = None
 
   def foward(self):
     raise NotImplementedError
@@ -19,33 +21,30 @@ class InputLayer(Layer):
     self.output = input_data
 
 class DenseLayer(Layer):
-  def __init__(self, size, activation, dropout=None):
+  def __init__(self, size, activation, drop_probability=0):
     self.size = size
     self.activation = activation
+    self.drop_probability = drop_probability
     self.gradient = None
     self.weights = None
     self.bias = None
-    self.dropout = dropout
     self.pre_activation = None
     super().__init__()
 
-  def foward(self, prev_layer):
-    self.pre_activation = (prev_layer.output @ self.weights) + self.bias
+  def foward(self):
+    self.pre_activation = (self.prev_layer.output @ self.weights) + self.bias
     self.output = self.activation(self.pre_activation)
-    if self.dropout:
-      self.compute_dropout()
+    if self.drop_probability:
+      keep_prob = 1 - self.drop_probability
+      self.drop_mask = np.random.binomial(1, keep_prob, size=self.output.shape)
+      self.scale = 1 / keep_prob if keep_prob > 0 else 0
+      self.output *= self.drop_mask * self.scale
   
-  def compute_dropout(self):
-    keep_prob = 1 - self.dropout
-    mask = np.random.binomial(1, keep_prob, size=self.output.shape)
-    scale = 1 / keep_prob if keep_prob > 0 else 0
-    self.output *= (mask * scale)
+  def backward(self):
+    self.gradient = (self.next_layer.gradient @ self.next_layer.weights.T) * self.activation(self.pre_activation, derivative=True)
   
-  def backward(self, next_layer):
-    self.gradient = (next_layer.gradient @ next_layer.weights.T) * self.activation(self.pre_activation, derivative=True)
-  
-  def update_weights(self, prev_layer, learning_rate):
-    self.weights -= learning_rate * (prev_layer.output.T @ self.gradient)
+  def update_weights(self, learning_rate):
+    self.weights -= learning_rate * (self.prev_layer.output.T @ self.gradient)
     self.bias -= learning_rate * self.gradient.mean(axis=0)
 
 class OutputLayer(DenseLayer):
