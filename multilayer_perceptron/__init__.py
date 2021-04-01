@@ -109,7 +109,9 @@ class MLP:
         layer.update_weights(learning_rate)
 
   def predict(self, input_data):
-    pass
+    self.feedfoward(input_data)
+    output_layer = self.layers[-1]
+    return output_layer.output
 
   def test(self, input_data, target):
     pass
