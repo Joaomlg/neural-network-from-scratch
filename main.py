@@ -36,6 +36,7 @@ mlp.add(InputLayer(784))
 mlp.add(DenseLayer(30, tanh, drop_probability=0.1))
 mlp.add(OutputLayer(10, softmax, binary_cross_entropy_cost))
 mlp.initialize_random_weights()
+mlp.build()
 mlp.fit(
   train_data=train_data,
   epochs=20,

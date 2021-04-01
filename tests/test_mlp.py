@@ -19,6 +19,8 @@ class MLPTestCase(unittest.TestCase):
     output_layer.bias = np.array([0.5])
     mlp.add(output_layer)
 
+    mlp.build()
+
     x = np.array([[1, 2, 3]])
     y = np.array([[2.0]])
 
@@ -53,6 +55,8 @@ class MLPTestCase(unittest.TestCase):
     output_layer.weights = np.array([[0.5], [-0.1]])
     output_layer.bias = np.array([0.3])
     mlp.add(output_layer)
+
+    mlp.build()
 
     x = np.array([[1.2, 2.5]])
     y = np.array([[3.0]])
@@ -92,6 +96,8 @@ class MLPTestCase(unittest.TestCase):
     output_layer.weights = np.array([[0.5], [-0.1]])
     output_layer.bias = np.array([0.3])
     mlp.add(output_layer)
+
+    mlp.build()
 
     x = np.array([[1.2, 2.5]])
     y = np.array([[3.0]])
