@@ -114,4 +114,8 @@ class MLP:
     return output_layer.output
 
   def test(self, input_data, target):
-    pass
+    self.feedfoward(input_data)
+    output_layer = self.layers[-1]
+    accuracy = output_layer.calculate_accuracy(target)
+    loss = output_layer.calculate_loss(target)
+    return accuracy, loss
