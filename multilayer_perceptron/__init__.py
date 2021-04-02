@@ -17,21 +17,6 @@ class MLP:
       raise TypeError(f'layer param should be \'{type(Layer)}\' type, not \'{type(layer)}\'')
     self.layers.append(layer)
   
-  def initialize_random_weights(self):
-    num_of_layers = len(self.layers)
-    for i in range(1, num_of_layers):
-      prev_layer = self.layers[i - 1]
-      curr_layer = self.layers[i]
-        
-      if isinstance(curr_layer, (DenseLayer, OutputLayer)):
-        weights_shape = prev_layer.size, curr_layer.size
-        random_weights = np.random.uniform(-0.5, 0.5, weights_shape)
-        curr_layer.weights = random_weights
-
-        bias_size = curr_layer.size
-        random_bias = np.random.uniform(-0.5, 0.5, bias_size)
-        curr_layer.bias = random_bias
-  
   def build(self):
     if len(self.layers) < 2:
       raise Exception('Network should has at least two layers (InputLayer and OutputLayer)')
@@ -48,12 +33,14 @@ class MLP:
           raise Exception(f'Middle layer shouldn\'t be InputLayer or OutputLayer')
 
       if i > 0:
-        if layer.weights is None:
-          raise Exception(f'Layer {i} ({type(layer)}) without weights')
-
         prev_layer = self.layers[i - 1]
         prev_layer.next_layer = layer
         layer.prev_layer = prev_layer
+
+        if isinstance(layer, (DenseLayer, OutputLayer)):
+          if layer.weights is None:
+            layer.initialize_weights()
+            layer.initialize_bias()
     
     self.__builded = True
 

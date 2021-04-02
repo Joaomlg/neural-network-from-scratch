@@ -31,6 +31,14 @@ class DenseLayer(Layer):
     self.pre_activation = None
     super().__init__()
 
+  def initialize_weights(self):
+    weights_shape = self.prev_layer.size, self.size
+    self.weights = np.random.uniform(-0.5, 0.5, weights_shape)
+
+  def initialize_bias(self):
+    bias_size = self.size
+    self.bias = np.random.uniform(-0.5, 0.5, bias_size)
+
   def foward(self):
     self.pre_activation = (self.prev_layer.output @ self.weights) + self.bias
     self.output = self.activation(self.pre_activation)
