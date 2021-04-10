@@ -34,14 +34,10 @@ class MLP:
 
       if i > 0:
         prev_layer = self.layers[i - 1]
-        prev_layer.next_layer = layer
-        layer.prev_layer = prev_layer
+        prev_layer.set_next_layer(layer)
+        layer.set_previus_layer(prev_layer)
+        layer.setup()
 
-        if isinstance(layer, (DenseLayer, OutputLayer)):
-          if layer.weights is None:
-            layer.initialize_weights()
-            layer.initialize_bias()
-    
     self.__builded = True
 
   def fit(self, train_data, epochs, learning_rate, batch_size, validation_data=None):
@@ -114,7 +110,7 @@ class MLP:
   
   def update_weights(self, learning_rate):
     for layer in self.layers:
-      if isinstance(layer, InputLayer):
+      if isinstance(layer, (InputLayer, MaxPoolingLayer)):
         pass
       else:
         layer.update_weights(learning_rate)
