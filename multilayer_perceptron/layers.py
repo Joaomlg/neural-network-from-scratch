@@ -258,3 +258,24 @@ class MaxPoolingLayer(Layer):
             mask = (input_slice == self.output[sample, channel, j, i])
             gradient_slice = self.gradient[sample, channel, y_min:y_max, x_min:x_max]
             gradient_slice += mask * self.next_layer.gradient[sample, channel, j, i]
+
+class FlattenLayer(Layer):
+  def __init__(self):
+    super().__init__()
+
+  @property
+  def input_width(self):
+    return np.prod(self.input_shape)
+
+  @property
+  def output_shape(self):
+    return (1, self.input_width)
+  
+  def setup(self):
+    pass
+
+  def foward(self):
+    self.output = self.input_data.reshape((-1, self.input_width))
+  
+  def backward(self):
+    self.gradient = self.next_layer.gradient.reshape((-1, *self.input_shape))
