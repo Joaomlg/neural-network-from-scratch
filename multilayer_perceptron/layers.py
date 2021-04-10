@@ -110,10 +110,10 @@ class DenseLayer(Layer):
     self.bias -= learning_rate * self.gradient.mean(axis=0)
 
 class OutputLayer(DenseLayer):
-  def __init__(self, size, activation, cost):
+  def __init__(self, num_of_neurons, activation, cost):
     self.cost = cost
     self.loss = None
-    super().__init__(size, activation)
+    super().__init__(num_of_neurons, activation)
 
   def backward(self, target):
     self.gradient = self.cost(self.output, target, derivative=True) * self.activation(self.pre_activation, derivative=True)
