@@ -1,5 +1,6 @@
 import numpy as np
 from time import time
+from datetime import timedelta
 
 from multilayer_perceptron.layers import *
 
@@ -49,7 +50,8 @@ class MLP:
     try:
       for epoch in range(epochs):
         batchs = self.split_data_in_batchs(train_size, batch_size)
-        for batch in batchs:
+        t0 = time()
+        for i, batch in enumerate(batchs):
           x, y = xtrain[batch], ytrain[batch]
 
           self.feedfoward(x)
@@ -63,8 +65,10 @@ class MLP:
           
           self.train_loss_per_iter.append(train_loss)
           self.train_accu_per_iter.append(train_accuracy)
+        t1 = time()
+        passed = timedelta(seconds=t1-t0)
 
-        print('\rEpoch: {epoch}/{epochs}\tTrain: {train_loss:.3f} | {train_accuracy:.3f}'.format(**locals()), end='')
+        print('\rEpoch: {epoch}/{epochs}\tTrain: {train_loss:.3f} | {train_accuracy:.3f}\tTime: {passed}'.format(**locals()), end='')
 
         if validation_data:
           xvalid, yvalid = validation_data
@@ -110,7 +114,7 @@ class MLP:
   
   def update_weights(self, learning_rate):
     for layer in self.layers:
-      if isinstance(layer, (InputLayer, MaxPoolingLayer)):
+      if isinstance(layer, (InputLayer, MaxPoolingLayer, FlattenLayer)):
         pass
       else:
         layer.update_weights(learning_rate)

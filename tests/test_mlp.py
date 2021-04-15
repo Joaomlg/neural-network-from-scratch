@@ -15,11 +15,12 @@ class MLPTestCase(unittest.TestCase):
     mlp.add(input_layer)
 
     output_layer = OutputLayer(1, identity, mean_square_cost)
-    output_layer.weights = np.array([[0.1], [0.2], [0.3]])
-    output_layer.bias = np.array([0.5])
     mlp.add(output_layer)
 
     mlp.build()
+
+    output_layer.weights = np.array([[0.1], [0.2], [0.3]])
+    output_layer.bias = np.array([0.5])
 
     x = np.array([[1, 2, 3]])
     y = np.array([[2.0]])
@@ -36,7 +37,7 @@ class MLPTestCase(unittest.TestCase):
     loss = output_layer.calculate_loss(y)
     np.testing.assert_almost_equal(loss, 0.005)
 
-    np.testing.assert_almost_equal(output_layer.gradient, np.array([[-0.1]]))
+    np.testing.assert_almost_equal(output_layer.output_gradient, np.array([[-0.1]]))
 
     np.testing.assert_almost_equal(output_layer.weights, np.array([[0.15], [0.3], [0.45]]))
     np.testing.assert_almost_equal(output_layer.bias, np.array([0.55]))
@@ -48,16 +49,18 @@ class MLPTestCase(unittest.TestCase):
     mlp.add(input_layer)
 
     hidden_layer = DenseLayer(2, tanh)
-    hidden_layer.weights = np.array([[0.5, 0.1], [-0.5, -0.3]])
-    hidden_layer.bias = np.array([-0.2, 0.2])
     mlp.add(hidden_layer)
 
     output_layer = OutputLayer(1, identity, mean_square_cost)
-    output_layer.weights = np.array([[0.5], [-0.1]])
-    output_layer.bias = np.array([0.3])
     mlp.add(output_layer)
 
     mlp.build()
+
+    hidden_layer.weights = np.array([[0.5, 0.1], [-0.5, -0.3]])
+    hidden_layer.bias = np.array([-0.2, 0.2])
+
+    output_layer.weights = np.array([[0.5], [-0.1]])
+    output_layer.bias = np.array([0.3])
 
     x = np.array([[1.2, 2.5]])
     y = np.array([[3.0]])
@@ -74,8 +77,8 @@ class MLPTestCase(unittest.TestCase):
     loss = output_layer.calculate_loss(y)
     np.testing.assert_almost_equal(loss, 4.5150203251661845)
 
-    np.testing.assert_almost_equal(output_layer.gradient, np.array([[-3.005002604047519]]))
-    np.testing.assert_almost_equal(hidden_layer.gradient, np.array([[-0.7849412194740529, 0.25113246595910205]]))
+    np.testing.assert_almost_equal(output_layer.output_gradient, np.array([[-3.005002604047519]]))
+    np.testing.assert_almost_equal(hidden_layer.output_gradient, np.array([[-0.7849412194740529, 0.25113246595910205]]))
 
     np.testing.assert_almost_equal(hidden_layer.weights, np.array([[0.5941929463368864, 0.06986410408490776], [-0.30376469513148674, -0.3627831164897755]]))
     np.testing.assert_almost_equal(hidden_layer.bias, np.array([-0.12150587805259472, 0.1748867534040898]))
