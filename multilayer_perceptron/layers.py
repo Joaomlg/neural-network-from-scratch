@@ -74,6 +74,10 @@ class DenseLayer(Layer):
     self.drop_probability = drop_probability
     self.weights = None
     self.bias = None
+    self.weight_gradient = None
+    self.bias_gradient = None
+    self.output_gradient = None
+    self.bias_gradient = None
     self.pre_activation = None
   
   @property
@@ -103,11 +107,13 @@ class DenseLayer(Layer):
       self.output *= self.drop_mask * self.scale
   
   def backward(self):
-    self.gradient = (self.next_layer.gradient @ self.next_layer.weights.T) * self.activation(self.pre_activation, derivative=True)
+    self.output_gradient = (self.next_layer.output_gradient @ self.next_layer.weights.T) * self.activation(self.pre_activation, derivative=True)
+    self.gradient = self.input_data.T @ self.output_gradient
+    self.bias_gradient = self.output_gradient.sum(axis=0)
   
   def update_weights(self, learning_rate):
-    self.weights -= learning_rate * (self.input_data.T @ self.gradient)
-    self.bias -= learning_rate * self.gradient.mean(axis=0)
+    self.weights -= learning_rate * self.gradient
+    self.bias -= learning_rate * self.bias_gradient
 
 class OutputLayer(DenseLayer):
   def __init__(self, num_of_neurons, activation, cost):
@@ -116,8 +122,10 @@ class OutputLayer(DenseLayer):
     super().__init__(num_of_neurons, activation)
 
   def backward(self, target):
-    self.gradient = self.cost(self.output, target, derivative=True) * self.activation(self.pre_activation, derivative=True)
-  
+    self.output_gradient = self.cost(self.output, target, derivative=True) * self.activation(self.pre_activation, derivative=True)
+    self.gradient = self.input_data.T @ self.output_gradient
+    self.bias_gradient = self.output_gradient.mean(axis=0)
+
   def calculate_loss(self, target):
     return self.cost(self.output, target)
   
