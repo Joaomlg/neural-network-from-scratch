@@ -160,6 +160,10 @@ class ConvolutionalLayer(Layer):
     bias_size = self.num_of_kernels
     self.bias = np.zeros(bias_size)
   
+  def update_weights(self, learning_rate):
+    self.kernels -= learning_rate * self.kernel_gradient
+    self.bias -= learning_rate * self.bias_gradient
+  
   @property
   def output_height(self):
     input_channels, input_height, input_width = self.input_shape
@@ -202,15 +206,17 @@ class ConvolutionalLayer(Layer):
 
     for sample in range(input_samples):
       for kernel in range(self.num_of_kernels):
-        self.bias_gradient[kernel] += np.sum(self.next_layer.gradient[kernel])
+        self.bias_gradient[kernel] += np.sum(self.next_layer.gradient[sample, kernel])
         vertical_steps = input_height - self.kernel_height + 1
         for j in range(0, vertical_steps, self.vertical_stride):
           horizontal_steps = input_width - self.kernel_width + 1
           for i in range(0, horizontal_steps, self.horizontal_stride):
             input_slice = self.input_data[sample, :, j:j+self.kernel_height, i:i+self.kernel_width]
-            self.kernel_gradient[kernel, :, j, i] += np.sum(input_slice * self.next_layer.gradient[kernel])
+            output_x_index, output_y_index = i // self.horizontal_stride, j // self.vertical_stride
+            next_layer_gradient_slice = self.next_layer.gradient[sample, kernel, output_y_index, output_x_index]
+            self.kernel_gradient[kernel, :] += input_slice * next_layer_gradient_slice
             gradient_slice = self.gradient[sample, :, j:j+self.kernel_height, i:i+self.kernel_width]
-            gradient_slice += self.next_layer.gradient[kernel, j, i] * self.kernels[kernel]
+            gradient_slice += next_layer_gradient_slice * self.kernels[kernel]
 
 class MaxPoolingLayer(Layer):
   def __init__(self, pool_size: tuple, stride=(1, 1)):
