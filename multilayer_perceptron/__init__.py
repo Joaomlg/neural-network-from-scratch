@@ -2,7 +2,13 @@ import numpy as np
 from time import time
 from datetime import timedelta
 
-from multilayer_perceptron.layers import *
+from multilayer_perceptron.layers import Layer
+from multilayer_perceptron.layers.input_layer import InputLayer
+from multilayer_perceptron.layers.dense_layer import DenseLayer
+from multilayer_perceptron.layers.convolutional_layer import ConvolutionalLayer
+from multilayer_perceptron.layers.max_pooling_layer import MaxPoolingLayer
+from multilayer_perceptron.layers.flatten_layer import FlattenLayer
+from multilayer_perceptron.layers.output_layer import OutputLayer
 
 class MLP:
   def __init__(self):

@@ -3,7 +3,9 @@ import unittest
 import numpy as np
 
 from multilayer_perceptron import MLP
-from multilayer_perceptron.layers import *
+from multilayer_perceptron.layers.input_layer import InputLayer
+from multilayer_perceptron.layers.dense_layer import DenseLayer
+from multilayer_perceptron.layers.output_layer import OutputLayer
 from multilayer_perceptron.activations import *
 from multilayer_perceptron.costs import *
 

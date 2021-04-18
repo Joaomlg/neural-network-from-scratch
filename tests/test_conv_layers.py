@@ -2,7 +2,9 @@ import unittest
 
 import numpy as np
 
-from multilayer_perceptron.layers import *
+from multilayer_perceptron.layers import Layer
+from multilayer_perceptron.layers.input_layer import InputLayer
+from multilayer_perceptron.layers.convolutional_layer import ConvolutionalLayer
 from multilayer_perceptron.activations import *
 
 class LayersTestCase(unittest.TestCase):
