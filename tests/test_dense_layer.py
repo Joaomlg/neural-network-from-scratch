@@ -49,6 +49,11 @@ class DenseLayerTestCase(unittest.TestCase):
     dense_layer = DenseLayer(num_of_neurons=4, activation=tanh)
     dense_layer.set_previus_layer(input_layer)
     dense_layer.set_next_layer(output_layer)
+    dense_layer.weights = np.array([[0.1, 0.3, 0.5, 0.7],
+                                    [0.9, 1.1, 1.3, 1.5],
+                                    [1.7, 1.9, 2.1, 2.3]])
+    dense_layer.bias = np.array([0.1, 1.2, 2.3, 3.4])
+    dense_layer.pre_activation = np.array([[0.8, 2.02, 3.24, 4.46]])
 
     dense_layer.backward()
 
