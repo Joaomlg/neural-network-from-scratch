@@ -6,7 +6,7 @@ from multilayer_perceptron.layers import *
 from multilayer_perceptron.activations import *
 
 class FlattenLayerTestCase(unittest.TestCase):
-  def test_pooling_layer_output_shape(self):
+  def test_flatten_layer_output_shape(self):
     input_layer = InputLayer((3, 2, 2))
     flatten_layer = FlattenLayer()
 
@@ -15,7 +15,7 @@ class FlattenLayerTestCase(unittest.TestCase):
     expected_output_shape = (1, 12)
     np.testing.assert_almost_equal(flatten_layer.output_shape, expected_output_shape)
   
-  def test_pooling_layer_foward(self):
+  def test_flatten_layer_foward(self):
     input_layer = InputLayer((3, 2, 2))
     flatten_layer = FlattenLayer()
 
@@ -38,7 +38,7 @@ class FlattenLayerTestCase(unittest.TestCase):
 
     np.testing.assert_almost_equal(flatten_layer.output, expected_output)
 
-  def test_pooling_layer_backward(self):
+  def test_flatten_layer_backward(self):
     input_layer = InputLayer((3, 2, 2))
 
     flatten_layer = FlattenLayer()
