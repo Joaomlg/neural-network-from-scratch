@@ -12,8 +12,6 @@ class DenseLayer(Layer):
     self.bias = None
     self.weight_gradient = None
     self.bias_gradient = None
-    self.output_gradient = None
-    self.bias_gradient = None
     self.pre_activation = None
   
   @property
@@ -43,10 +41,11 @@ class DenseLayer(Layer):
       self.output *= self.drop_mask * self.scale
   
   def backward(self):
-    self.output_gradient = (self.next_layer.output_gradient @ self.next_layer.weights.T) * self.activation(self.pre_activation, derivative=True)
-    self.gradient = self.input_data.T @ self.output_gradient
-    self.bias_gradient = self.output_gradient.sum(axis=0)
+    pre_activation_gradient = self.next_layer.gradient * self.activation(self.pre_activation, derivative=True)
+    self.weight_gradient = self.input_data.T @ pre_activation_gradient
+    self.bias_gradient = pre_activation_gradient.sum(axis=0)
+    self.gradient = pre_activation_gradient @ self.weights.T
   
   def update_weights(self, learning_rate):
-    self.weights -= learning_rate * self.gradient
+    self.weights -= learning_rate * self.weight_gradient
     self.bias -= learning_rate * self.bias_gradient
