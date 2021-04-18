@@ -6,13 +6,15 @@ def mean_square_cost(predict, target, derivative=False):
   return (1/2) * np.sum((target - predict) ** 2) / len(target)
 
 def cross_entropy_cost(predict, target, derivative=False):
+  clipped_predict = np.clip(predict, 1e-20, 1 - 1e-20)
   if derivative:
-    return -1 * (target / predict)
+    return -1 * (target / clipped_predict)
   else:
-    return -1 * np.sum(target * np.log(predict)) / len(target)
+    return -1 * np.sum(target * np.log(clipped_predict)) / len(target)
 
 def binary_cross_entropy_cost(predict, target, derivative=False):
+  clipped_predict = np.clip(predict, 1e-20, 1 - 1e-20)
   if derivative:
-    return -1 * ((target / predict) - ((1 - target) / (1 - predict)))
+    return -1 * ((target / clipped_predict) - ((1 - target) / (1 - clipped_predict)))
   else:
-    return -1 * np.sum(target * np.log(predict) + (1 - target) * np.log(1 - predict)) / len(target)
+    return -1 * np.sum(target * np.log(clipped_predict) + (1 - target) * np.log(1 - clipped_predict)) / len(target)
