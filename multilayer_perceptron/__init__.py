@@ -49,11 +49,8 @@ class MLP:
     train_size = len(xtrain)
     try:
       for epoch in range(epochs):
-        batchs = self.split_data_in_batchs(train_size, batch_size)
         t0 = time()
-        for i, batch in enumerate(batchs):
-          x, y = xtrain[batch], ytrain[batch]
-
+        for i, (x, y) in enumerate(self.generate_batches(train_data, batch_size, random=False)):
           self.feedfoward(x)
           self.backpropagation(y)
           self.update_weights(learning_rate)
@@ -88,13 +85,16 @@ class MLP:
       print('\nDone.')
 
   @staticmethod
-  def split_data_in_batchs(data_size, batch_size, random=True):
-    samples = np.arange(data_size)
+  def generate_batches(data, batch_size, random=True):
+    x, y = data
+    N = len(x)
     if random:
-      np.random.shuffle(samples)
-    num_of_batchs = np.floor_divide(data_size, batch_size)
-    batchs = np.array_split(samples, num_of_batchs)
-    return batchs
+      np.random.shuffle(data)
+    for i in range(0, N, batch_size):
+      yield (
+        x[i:min(i + batch_size, N)],
+        y[i:min(i + batch_size, N)]
+      )
 
   def feedfoward(self, input_data):
     for layer in self.layers:
