@@ -34,6 +34,6 @@ def softmax(x, derivative=False):
   if derivative:
     return softmax(x) * (1 - softmax(x))
   else:
-    e = np.exp(x - np.max(x))
+    e = np.exp(x - np.max(x, axis=1, keepdims=True))
     s = np.sum(e, axis=1, keepdims=True)
     return e / s
