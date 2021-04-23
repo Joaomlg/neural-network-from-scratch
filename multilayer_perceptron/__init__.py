@@ -56,7 +56,7 @@ class MLP:
     try:
       for epoch in range(epochs):
         t0 = time()
-        for i, (x, y) in enumerate(self.generate_batches(train_data, batch_size, random=False)):
+        for i, (x, y) in enumerate(self.generate_batches(train_data, batch_size)):
           self.feedfoward(x)
           self.backpropagation(y)
           self.update_weights(learning_rate)
@@ -94,8 +94,11 @@ class MLP:
   def generate_batches(data, batch_size, random=True):
     x, y = data
     N = len(x)
+    
     if random:
-      np.random.shuffle(data)
+      np.random.shuffle(x)
+      np.random.shuffle(y)
+
     for i in range(0, N, batch_size):
       yield (
         x[i:min(i + batch_size, N)],
