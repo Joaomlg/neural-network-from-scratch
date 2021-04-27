@@ -47,40 +47,37 @@ class ConvolutionalLayer(Layer):
 
   def foward(self):
     input_samples, input_channels, input_height, input_width = self.input_data.shape
-
-    if input_channels != self.num_of_channels:
-      raise Exception(f'Input and kernel channels should be match: {input_channels} != {self.num_of_channels}')
     
     self.output = np.zeros((input_samples, self.num_of_kernels, self.output_height, self.output_width))
 
-    for sample in range(input_samples):
-      for kernel in range(self.num_of_kernels):
-        vertical_steps = input_height - self.kernel_height + 1
-        for j in range(0, vertical_steps, self.vertical_stride):
-          horizontal_steps = input_width - self.kernel_width + 1
-          for i in range(0, horizontal_steps, self.horizontal_stride):
-            input_slice = self.input_data[sample, :, j:j+self.kernel_height, i:i+self.kernel_width]
-            convolution_result = np.sum(self.kernels[kernel] * input_slice) + self.bias[kernel]
-            output_x_index, output_y_index = i // self.horizontal_stride, j // self.vertical_stride
-            self.output[sample, kernel, output_y_index, output_x_index] = convolution_result
+    for j in range(self.output_height):
+      for i in range(self.output_width):
+        input_slice = self.get_input_slice(i, j)
+        self.output[:, :, j, i] = np.sum(input_slice[:, np.newaxis] * self.kernels, axis=(2, 3, 4)) + self.bias
+
+  def get_input_slice(self, output_i, output_j):
+    input_slice_left = output_i * self.horizontal_stride
+    input_slice_right = input_slice_left + self.kernel_width
+    input_slice_top = output_j * self.vertical_stride
+    input_slice_bottom = input_slice_top + self.kernel_height
+    return self.input_data[:, :, input_slice_top:input_slice_bottom, input_slice_left:input_slice_right]
 
   def backward(self):
     input_samples, input_channels, input_height, input_width = self.input_data.shape
 
     self.gradient = np.zeros_like(self.input_data)
     self.kernel_gradient = np.zeros_like(self.kernels)
-    self.bias_gradient = np.zeros_like(self.bias)
+    
+    self.bias_gradient = np.sum(self.next_layer.gradient, axis=(0, 2, 3))
 
-    for sample in range(input_samples):
-      for kernel in range(self.num_of_kernels):
-        self.bias_gradient[kernel] += np.sum(self.next_layer.gradient[sample, kernel])
-        vertical_steps = input_height - self.kernel_height + 1
-        for j in range(0, vertical_steps, self.vertical_stride):
-          horizontal_steps = input_width - self.kernel_width + 1
-          for i in range(0, horizontal_steps, self.horizontal_stride):
-            input_slice = self.input_data[sample, :, j:j+self.kernel_height, i:i+self.kernel_width]
-            output_x_index, output_y_index = i // self.horizontal_stride, j // self.vertical_stride
-            next_layer_gradient_slice = self.next_layer.gradient[sample, kernel, output_y_index, output_x_index]
-            self.kernel_gradient[kernel, :] += input_slice * next_layer_gradient_slice
-            gradient_slice = self.gradient[sample, :, j:j+self.kernel_height, i:i+self.kernel_width]
-            gradient_slice += next_layer_gradient_slice * self.kernels[kernel]
+    for kernel in range(self.num_of_kernels):
+      vertical_steps = input_height - self.kernel_height + 1
+      for j in range(0, vertical_steps, self.vertical_stride):
+        horizontal_steps = input_width - self.kernel_width + 1
+        for i in range(0, horizontal_steps, self.horizontal_stride):
+          input_slice = self.input_data[:, :, j:j+self.kernel_height, i:i+self.kernel_width]
+          output_x_index, output_y_index = i // self.horizontal_stride, j // self.vertical_stride
+          next_layer_gradient_slice = self.next_layer.gradient[:, kernel, output_y_index, output_x_index]
+          self.kernel_gradient[kernel] += np.sum(input_slice * next_layer_gradient_slice[:, np.newaxis, np.newaxis, np.newaxis], axis=0)
+          gradient_slice = self.gradient[:, :, j:j+self.kernel_height, i:i+self.kernel_width]
+          gradient_slice += next_layer_gradient_slice[:, np.newaxis, np.newaxis, np.newaxis] * self.kernels[kernel]
