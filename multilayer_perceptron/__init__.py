@@ -71,7 +71,7 @@ class MLP:
         t1 = time()
         passed = timedelta(seconds=t1-t0)
 
-        print('\rEpoch: {epoch}/{epochs}\tTrain: {train_loss:.3f} | {train_accuracy:.3f}\tTime: {passed}'.format(**locals()), end='')
+        print('\nEpoch: {epoch}/{epochs}\tTrain: {train_loss:.3f} | {train_accuracy:.3f}\tTime: {passed}'.format(**locals()), end='')
 
         if validation_data:
           xvalid, yvalid = validation_data
