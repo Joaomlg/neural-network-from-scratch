@@ -2,36 +2,39 @@ import unittest
 
 import numpy as np
 
-from multilayer_perceptron.layers import Layer
-from multilayer_perceptron.layers.input_layer import InputLayer
-from multilayer_perceptron.layers.convolutional_layer import ConvolutionalLayer
-from multilayer_perceptron.activations import *
+from multilayer_perceptron.layers import Conv2DLayer
 
-class LayersTestCase(unittest.TestCase):
-  def test_convolutional_layer_output_shape(self):
-    input_layer = InputLayer((3, 5, 5))
-    conv_layer = ConvolutionalLayer(
-      num_of_kernels=12,
-      kernel_size=(2, 2),
-      num_of_channels=3,
-      stride=(1, 1)
-    )
-
-    conv_layer.set_previus_layer(input_layer)
-
+class Conv2DLayersTestCase(unittest.TestCase):
+  def test_output_shape(self):
+    conv_layer = Conv2DLayer(num_of_kernels=12, kernel_shape=(2, 2), num_of_channels=3, stride=(1, 1))
+    conv_layer.input_shape = (3, 5, 5)
     expected_output_shape = (12, 4, 4)
     np.testing.assert_almost_equal(conv_layer.output_shape, expected_output_shape)
   
-  def test_convolutional_layer_foward(self):
-    input_layer = InputLayer((3, 3, 3))
-    conv_layer = ConvolutionalLayer(
-      num_of_kernels=2,
-      kernel_size=(2, 2),
-      num_of_channels=3,
-      stride=(1, 1)
-    )
+  def test_forward(self):
+    conv_layer = Conv2DLayer(num_of_kernels=2, kernel_shape=(2, 2), num_of_channels=3, stride=(1, 1))
+    conv_layer.input_shape = (3, 3, 3)
 
-    conv_layer.set_previus_layer(input_layer)
+    conv_layer.weights = np.array([[[[-0.04366627, -0.00117819],
+                                     [-0.04888828, -0.00966405]],
+
+                                    [[-0.0544929 , -0.0135245 ],
+                                     [-0.03783223, -0.04092851]],
+
+                                    [[ 0.04064751,  0.0621986 ],
+                                     [ 0.03555618,  0.16388576]]],
+
+
+                                   [[[ 0.1847834 ,  0.1447659 ],
+                                     [-0.1177082 , -0.01701589]],
+
+                                    [[-0.15503425, -0.19433954],
+                                     [ 0.07207011, -0.01134353]],
+
+                                    [[-0.00042596,  0.0217834 ],
+                                     [-0.07742618, -0.10443655]]]])
+    
+    conv_layer.bias = np.array([0.11555168, -0.02902859])
 
     input_data = np.array([[[[0.5026781 , 0.17503963, 0.7035029 ],
                              [0.0875963 , 0.95898526, 0.2906249 ],
@@ -57,31 +60,8 @@ class LayersTestCase(unittest.TestCase):
                             [[0.97761022, 0.41060786, 0.31127046],
                              [0.17468091, 0.31838896, 0.5493379 ],
                              [0.82079608, 0.57568749, 0.32345484]]]])
-    
-    input_layer.output = input_data
 
-    conv_layer.kernels = np.array([[[[-0.04366627, -0.00117819],
-                                     [-0.04888828, -0.00966405]],
-
-                                    [[-0.0544929 , -0.0135245 ],
-                                     [-0.03783223, -0.04092851]],
-
-                                    [[ 0.04064751,  0.0621986 ],
-                                     [ 0.03555618,  0.16388576]]],
-
-
-                                   [[[ 0.1847834 ,  0.1447659 ],
-                                     [-0.1177082 , -0.01701589]],
-
-                                    [[-0.15503425, -0.19433954],
-                                     [ 0.07207011, -0.01134353]],
-
-                                    [[-0.00042596,  0.0217834 ],
-                                     [-0.07742618, -0.10443655]]]])
-    
-    conv_layer.bias = np.array([0.11555168, -0.02902859])
-
-    conv_layer.foward()
+    output = conv_layer.forward(input_data)
 
     expected_output = np.array([[[[ 0.1929525 ,  0.14604053],
                                   [ 0.13059864,  0.18243506]],
@@ -96,22 +76,32 @@ class LayersTestCase(unittest.TestCase):
                                  [[-0.07724325, -0.19091724],
                                   [ 0.06506965, -0.0433917 ]]]])
 
-    np.testing.assert_almost_equal(conv_layer.output, expected_output)
+    np.testing.assert_almost_equal(output, expected_output)
 
-  def test_convolutional_layer_backward(self):
-    input_layer = InputLayer((3, 3, 3))
+  def test_backward(self):
+    conv_layer = Conv2DLayer(num_of_kernels=2, kernel_shape=(2, 2), num_of_channels=3, stride=(1, 1))
+    conv_layer.input_shape = (3, 3, 3)
 
-    conv_layer = ConvolutionalLayer(
-      num_of_kernels=2,
-      kernel_size=(2, 2),
-      num_of_channels=3,
-      stride=(1, 1)
-    )
+    conv_layer.weights = np.array([[[[-0.04366627, -0.00117819],
+                                     [-0.04888828, -0.00966405]],
 
-    output_layer = Layer()
+                                    [[-0.0544929 , -0.0135245 ],
+                                     [-0.03783223, -0.04092851]],
 
-    conv_layer.set_previus_layer(input_layer)
-    conv_layer.set_next_layer(output_layer)
+                                    [[ 0.04064751,  0.0621986 ],
+                                     [ 0.03555618,  0.16388576]]],
+
+
+                                   [[[ 0.1847834 ,  0.1447659 ],
+                                     [-0.1177082 , -0.01701589]],
+
+                                    [[-0.15503425, -0.19433954],
+                                     [ 0.07207011, -0.01134353]],
+
+                                    [[-0.00042596,  0.0217834 ],
+                                     [-0.07742618, -0.10443655]]]])
+
+    conv_layer.bias = np.array([0.11555168, -0.02902859])
 
     input_data = np.array([[[[0.5026781 , 0.17503963, 0.7035029 ],
                              [0.0875963 , 0.95898526, 0.2906249 ],
@@ -137,44 +127,23 @@ class LayersTestCase(unittest.TestCase):
                             [[0.97761022, 0.41060786, 0.31127046],
                              [0.17468091, 0.31838896, 0.5493379 ],
                              [0.82079608, 0.57568749, 0.32345484]]]])
-    
-    input_layer.output = input_data
 
-    conv_layer.kernels = np.array([[[[-0.04366627, -0.00117819],
-                                     [-0.04888828, -0.00966405]],
+    conv_layer.prev_input = input_data
 
-                                    [[-0.0544929 , -0.0135245 ],
-                                     [-0.03783223, -0.04092851]],
+    output_gradient = np.array([[[[0.03478996, 0.0792425 ],
+                                  [0.07164701, 0.04425164]],
 
-                                    [[ 0.04064751,  0.0621986 ],
-                                     [ 0.03555618,  0.16388576]]],
+                                 [[0.02943024, 0.08380285],
+                                  [0.08738756, 0.02173393]]],
 
 
-                                   [[[ 0.1847834 ,  0.1447659 ],
-                                     [-0.1177082 , -0.01701589]],
+                                [[[0.00761398, 0.09481776],
+                                  [0.04980638, 0.01677931]],
 
-                                    [[-0.15503425, -0.19433954],
-                                     [ 0.07207011, -0.01134353]],
+                                 [[0.03319189, 0.03434629],
+                                  [0.03424299, 0.07101086]]]])
 
-                                    [[-0.00042596,  0.0217834 ],
-                                     [-0.07742618, -0.10443655]]]])
-
-    conv_layer.bias = np.array([0.11555168, -0.02902859])
-
-    output_layer.gradient = np.array([[[[0.03478996, 0.0792425 ],
-                                        [0.07164701, 0.04425164]],
-
-                                       [[0.02943024, 0.08380285],
-                                        [0.08738756, 0.02173393]]],
-
-
-                                      [[[0.00761398, 0.09481776],
-                                        [0.04980638, 0.01677931]],
-
-                                       [[0.03319189, 0.03434629],
-                                        [0.03424299, 0.07101086]]]])
-
-    conv_layer.backward()
+    input_gradient = conv_layer.backward(output_gradient)
 
     expected_input_gradient = np.array([[[[ 3.91907296e-03,  1.62446581e-02,  1.20384320e-02],
                                           [ 7.85421043e-03,  7.47833084e-05,  9.02411005e-04],
@@ -201,7 +170,7 @@ class LayersTestCase(unittest.TestCase):
                                           [-2.89278138e-04,  2.98903581e-03,  1.45427804e-02],
                                           [-8.80379654e-04, -3.15155090e-04, -4.66624015e-03]]]])
 
-    expected_kernel_gradient = np.array([[[[0.20294223, 0.23580547],
+    expected_weights_gradient = np.array([[[[0.20294223, 0.23580547],
                                            [0.23260384, 0.15422821]],
 
                                           [[0.17588449, 0.17873605],
@@ -222,9 +191,9 @@ class LayersTestCase(unittest.TestCase):
 
     expected_bias_gradient = np.array([0.39894854, 0.39514661])
 
-    np.testing.assert_almost_equal(conv_layer.gradient, expected_input_gradient)
+    np.testing.assert_almost_equal(input_gradient, expected_input_gradient)
 
-    np.testing.assert_almost_equal(conv_layer.kernel_gradient, expected_kernel_gradient)
+    np.testing.assert_almost_equal(conv_layer.weights_gradient, expected_weights_gradient)
 
     np.testing.assert_almost_equal(conv_layer.bias_gradient, expected_bias_gradient)
 
