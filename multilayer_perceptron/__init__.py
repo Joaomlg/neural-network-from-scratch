@@ -2,13 +2,7 @@ import numpy as np
 from time import time
 from datetime import timedelta
 
-from multilayer_perceptron.layers import Layer
-from multilayer_perceptron.layers.input_layer import InputLayer
-from multilayer_perceptron.layers.dense_layer import DenseLayer
-from multilayer_perceptron.layers.convolutional_layer import ConvolutionalLayer
-from multilayer_perceptron.layers.max_pooling_layer import MaxPoolingLayer
-from multilayer_perceptron.layers.flatten_layer import FlattenLayer
-from multilayer_perceptron.layers.output_layer import OutputLayer
+from multilayer_perceptron.utils import generate_batches
 
 class MLP:
   def __init__(self):
@@ -90,22 +84,7 @@ class MLP:
     else:
       print('\nDone.')
 
-  @staticmethod
-  def generate_batches(data, batch_size, random=True):
-    x, y = data
-    N = len(x)
-    
-    if random:
-      np.random.shuffle(x)
-      np.random.shuffle(y)
-
-    for i in range(0, N, batch_size):
-      yield (
-        x[i:min(i + batch_size, N)],
-        y[i:min(i + batch_size, N)]
-      )
-
-  def feedfoward(self, input_data):
+  def feedforward(self, input_data):
     for layer in self.layers:
       if isinstance(layer, InputLayer):
         layer.foward(input_data)
