@@ -65,6 +65,7 @@ class InputLayer(AbstractLayer):
 class DenseLayer(AbstractLayer):
   def __init__(self, units: int):
     super().__init__()
+    self.units = units
     self.output_shape = (units, )
   
   @property
@@ -73,7 +74,7 @@ class DenseLayer(AbstractLayer):
 
   def initialize(self):
     self.weights = np.random.uniform(-0.5, 0.5, self.weights_shape)
-    self.bias = np.random.zeros(self.units)
+    self.bias = np.zeros(self.units)
 
   def forward(self, x: np.array) -> np.array:
     self.prev_input = x.copy()
@@ -90,6 +91,14 @@ class ActivationLayer(AbstractLayer):
     super().__init__()
     self.function = function
   
+  @property
+  def output_shape(self) -> tuple:
+    return self.input_shape
+  
+  @output_shape.setter
+  def output_shape(self, value):
+    pass
+  
   def forward(self, x: np.array) -> np.array:
     self.prev_input = x.copy()
     return self.function(x)
@@ -99,6 +108,14 @@ class ActivationLayer(AbstractLayer):
 
 
 class FlattenLayer(AbstractLayer):
+  @property
+  def output_shape(self) -> tuple:
+    return self.input_shape
+  
+  @output_shape.setter
+  def output_shape(self, value):
+    pass
+  
   def forward(self, x: np.array) -> np.array:
     return x.copy().reshape((-1, self.input_size))
   
