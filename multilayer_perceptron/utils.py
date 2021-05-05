@@ -2,7 +2,7 @@ import numpy as np
 
 
 def categorical_to_onehot(x: np.array, n: int=-1) -> np.array:
-  if n is None:
+  if n == -1:
     n = x.max() + 1
   onehot = np.zeros((x.size, n))
   onehot[np.arange(x.size), x] = 1
