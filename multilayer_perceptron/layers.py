@@ -73,7 +73,7 @@ class DenseLayer(AbstractLayer):
     return (self.input_size, self.output_size)
 
   def initialize(self):
-    self.weights = np.random.uniform(-0.5, 0.5, self.weights_shape)
+    self.weights = np.random.randn(*self.weights_shape) * 0.1
     self.bias = np.zeros(self.units)
 
   def forward(self, x: np.array) -> np.array:
@@ -136,7 +136,7 @@ class Conv2DLayer(AbstractLayer):
     return (self.num_of_kernels, self.kernel_channels, *self.kernel_shape)
 
   def initialize(self):
-    self.weights = np.random.randn(*self.weights_shape)
+    self.weights = np.random.randn(*self.weights_shape) * 0.1
     self.bias = np.zeros(self.num_of_kernels)
   
   @property
