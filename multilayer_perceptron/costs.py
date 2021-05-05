@@ -38,9 +38,9 @@ class BinaryCrossEntropyCost(AbstractCost):
     self.limit = limit
 
   def loss(self, predict: np.array, target: np.array) -> np.array:
-    clipped_predict = np.clip(predict, 1e-15, 1 - 1e-15)
+    clipped_predict = np.clip(predict, self.limit, 1 - self.limit)
     return -1 * np.sum(target * np.log(clipped_predict) + (1 - target) * np.log(1 - clipped_predict)) / len(target)
   
   def gradient(self, predict: np.array, target: np.array) -> np.array:
-    clipped_predict = np.clip(predict, 1e-15, 1 - 1e-15)
+    clipped_predict = np.clip(predict, self.limit, 1 - self.limit)
     return -1 * ((target / clipped_predict) - ((1 - target) / (1 - clipped_predict)))
