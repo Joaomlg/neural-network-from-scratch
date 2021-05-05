@@ -133,7 +133,7 @@ class Conv2DLayer(AbstractLayer):
   
   @property
   def weights_shape(self) -> tuple:
-    return (self.num_of_kernels, *self.kernel_shape)
+    return (self.num_of_kernels, self.kernel_channels, *self.kernel_shape)
 
   def initialize(self):
     self.weights = np.random.randn(*self.weights_shape)
