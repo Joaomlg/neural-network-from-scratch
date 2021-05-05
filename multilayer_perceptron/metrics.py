@@ -19,4 +19,5 @@ class AccuracyMetric(AbstractMetric):
 
 class CategoricalAccuracyMetric(AbstractMetric):
   def compare(self, predict: np.array, target: np.array) -> float:
-    return (probability_to_onehot(predict) == target).all(axis=1).mean()
+    predict_onehot = probability_to_onehot(predict, target.shape[1])
+    return (predict_onehot == target).all(axis=1).mean()
