@@ -16,6 +16,14 @@ class AbstractLayer(ABC):
     return len(self.output_shape)
   
   @property
+  def has_weights(self):
+    return self.weights is not None
+
+  @property
+  def has_bias(self):
+    return self.bias is not None
+  
+  @property
   def input_size(self):
     return np.prod(self.input_shape)
   
