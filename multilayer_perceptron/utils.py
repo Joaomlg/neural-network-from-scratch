@@ -19,8 +19,9 @@ def generate_batches(data, batch_size, random=True):
   N = len(x)
   
   if random:
-    np.random.shuffle(x)
-    np.random.shuffle(y)
+    n = np.arange(N)
+    np.random.shuffle(n)
+    x, y = x[n], y[n]
 
   for i in range(0, N, batch_size):
     yield (
