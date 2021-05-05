@@ -1,64 +1,58 @@
+from typing import List, Tuple
 import numpy as np
 from time import time
 from datetime import timedelta
 
+from multilayer_perceptron.layers import *
+from multilayer_perceptron.optimizers import AbstractOptimizer
+from multilayer_perceptron.costs import AbstractCost
+from multilayer_perceptron.metrics import AbstractMetric
 from multilayer_perceptron.utils import generate_batches
 
 class MLP:
-  def __init__(self):
-    self.layers = []
+  def __init__(self, optimizer: AbstractOptimizer, cost: AbstractCost, metric: AbstractMetric):
+    self.layers : List[AbstractLayer] = []
+
+    self.optimizer = optimizer
+    self.cost = cost
+    self.metric = metric
+
     self.train_loss_per_iter = []
     self.train_accu_per_iter = []
     self.valid_loss_per_epoch = []
     self.valid_accu_per_epoch = []
-    self.__builded = False
 
-  def add(self, layer: Layer):
-    if not isinstance(layer, Layer):
-      raise TypeError(f'layer param should be \'{type(Layer)}\' type, not \'{type(layer)}\'')
+  def add(self, layer: AbstractLayer):
+    if not isinstance(layer, AbstractLayer):
+      raise TypeError(f'layer should be Layer(AbstractLayer), not \'{type(layer).__name__}\'')
+
+    if len(self.layers) == 0:
+      if not isinstance(layer, InputLayer):
+        raise TypeError(f'first layer should be InputLayer(AbstractLayer), not \'{type(layer).__name__}\'')
+    else:
+      layer.input_shape = self.layers[-1].output_shape
+
     self.layers.append(layer)
   
-  def build(self):
-    if len(self.layers) < 2:
-      raise Exception('Network should has at least two layers (InputLayer and OutputLayer)')
+  def compile(self):
+    for layer in self.layers:
+      layer.initialize()
 
-    for i, layer in enumerate(self.layers):
-      if i == 0:
-        if not isinstance(layer, InputLayer):
-          raise Exception('First layer should be InputLayer')
-      elif i == len(self.layers) - 1:
-        if not isinstance(layer, OutputLayer):
-          raise Exception('Last layer should be OutputLayer')
-      else:
-        if isinstance(layer, (InputLayer, OutputLayer)):
-          raise Exception(f'Middle layer shouldn\'t be InputLayer or OutputLayer')
-
-      if i > 0:
-        prev_layer = self.layers[i - 1]
-        prev_layer.set_next_layer(layer)
-        layer.set_previus_layer(prev_layer)
-        layer.setup()
-
-    self.__builded = True
-
-  def fit(self, train_data, epochs, learning_rate, batch_size, validation_data=None):
-    if not self.__builded:
-      raise Exception('Network should be builded first')
-
+  def fit(self, train_data: Tuple[np.array, np.array], epochs: int, batch_size: int, validation_data: Tuple[np.array, np.array]=None):
     xtrain, ytrain = train_data
     train_size = len(xtrain)
     try:
       for epoch in range(epochs):
         t0 = time()
-        for i, (x, y) in enumerate(self.generate_batches(train_data, batch_size)):
-          self.feedfoward(x)
-          self.backpropagation(y)
-          self.update_weights(learning_rate)
+        for i, (x, y) in enumerate(generate_batches(train_data, batch_size)):
+          predict = self.feedforward(x)
 
-          output_layer = self.layers[-1]
+          train_loss = self.cost.loss(predict, y)
+          train_accuracy = self.metric.compare(predict, y)
 
-          train_loss = output_layer.calculate_loss(y)
-          train_accuracy = output_layer.calculate_accuracy(y)
+          output_gradient = self.cost.gradient(predict, y)
+          self.backpropagation(output_gradient)
+          self.update_weights()
           
           self.train_loss_per_iter.append(train_loss)
           self.train_accu_per_iter.append(train_accuracy)
@@ -70,10 +64,10 @@ class MLP:
         if validation_data:
           xvalid, yvalid = validation_data
           
-          self.feedfoward(xvalid)
+          valid_predict = self.feedforward(xvalid)
 
-          valid_loss = output_layer.calculate_loss(yvalid)
-          valid_accuracy = output_layer.calculate_accuracy(yvalid)
+          valid_loss = self.cost.loss(valid_predict, yvalid)
+          valid_accuracy = self.metric.compare(valid_predict, yvalid)
           
           self.valid_loss_per_epoch.append(valid_loss)
           self.valid_accu_per_epoch.append(valid_accuracy)
@@ -84,37 +78,26 @@ class MLP:
     else:
       print('\nDone.')
 
-  def feedforward(self, input_data):
+  def feedforward(self, input_data: np.array) -> np.array:
+    activation = input_data
     for layer in self.layers:
-      if isinstance(layer, InputLayer):
-        layer.foward(input_data)
-      else:
-        layer.foward()
+      activation = layer.forward(activation)
+    return activation
   
-  def backpropagation(self, target):
+  def backpropagation(self, output_gradient: np.array) -> np.array:
+    gradient = output_gradient
     for layer in reversed(self.layers):
-      if isinstance(layer, OutputLayer):
-        layer.backward(target)
-      elif isinstance(layer, InputLayer):
-        break
-      else:
-        layer.backward()
+      gradient = layer.backward(gradient)
+    return gradient
   
-  def update_weights(self, learning_rate):
-    for layer in self.layers:
-      if isinstance(layer, (InputLayer, MaxPoolingLayer, FlattenLayer)):
-        pass
-      else:
-        layer.update_weights(learning_rate)
+  def update_weights(self):
+    self.optimizer.optimize(self.layers)
 
-  def predict(self, input_data):
-    self.feedfoward(input_data)
-    output_layer = self.layers[-1]
-    return output_layer.output
+  def predict(self, input_data: np.array) -> np.array:
+    return self.feedforward(input_data)
 
-  def test(self, input_data, target):
-    self.feedfoward(input_data)
-    output_layer = self.layers[-1]
-    accuracy = output_layer.calculate_accuracy(target)
-    loss = output_layer.calculate_loss(target)
+  def test(self, input_data: np.array, target: np.array) -> np.array:
+    predict = self.feedforward(input_data)
+    accuracy = self.metric.compare(predict, target)
+    loss = self.cost.loss(predict, target)
     return accuracy, loss
