@@ -28,3 +28,9 @@ def generate_batches(data, batch_size, random=True):
       x[i:min(i + batch_size, N)],
       y[i:min(i + batch_size, N)]
     )
+
+def format_data(data, samples: int, input_shape: tuple):
+  x, y = data
+  x = x[:samples].reshape((-1, *input_shape)) / 255
+  y = categorical_to_onehot(y[:samples])
+  return x, y
