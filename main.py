@@ -3,44 +3,47 @@ import numpy as np
 from data import MNIST
 
 from multilayer_perceptron import MLP
-from multilayer_perceptron.layers import InputLayer, DenseLayer, OutputLayer
-from multilayer_perceptron.activations import tanh, softmax
-from multilayer_perceptron.costs import binary_cross_entropy_cost
+from multilayer_perceptron.layers import *
+from multilayer_perceptron.activations import *
+from multilayer_perceptron.optimizers import *
+from multilayer_perceptron.costs import *
+from multilayer_perceptron.metrics import *
+from multilayer_perceptron.utils import format_data
 
-def one_hot_encode(data):
-  encoded = np.zeros([len(data), 10])
-  for i in range(len(data)):
-    encoded[i, data[i]] = 1
-  return encoded
 
 mnist_dataset = MNIST()
 train_data, validation_data, test_data = mnist_dataset.load()
 
-train_data = (
-  train_data[0] / 255,
-  one_hot_encode(train_data[1])
+NUM_OF_SAMPLES = 1000
+
+train_data = format_data(train_data, samples=NUM_OF_SAMPLES, input_shape=(1, 28, 28))
+validation_data = format_data(validation_data, samples=NUM_OF_SAMPLES, input_shape=(1, 28, 28))
+test_data = format_data(test_data, samples=NUM_OF_SAMPLES, input_shape=(1, 28, 28))
+
+mlp = MLP(
+  optimizer=GradientDescentOptmizer(learning_rate=0.01),
+  cost=BinaryCrossEntropyCost(),
+  metric=CategoricalAccuracyMetric()
 )
 
-validation_data = (
-  validation_data[0] / 255,
-  one_hot_encode(validation_data[1])
-)
+mlp.add(InputLayer(shape=(1, 28, 28)))
+mlp.add(Conv2DLayer(num_of_kernels=32, kernel_shape=(5, 5), num_of_channels=1, stride=(1, 1)))
+mlp.add(ActivationLayer(function=relu))
+mlp.add(MaxPooling2DLayer(pool_shape=(2, 2), stride=(2, 2)))
+mlp.add(FlattenLayer())
+mlp.add(DenseLayer(units=64))
+mlp.add(ActivationLayer(function=relu))
+mlp.add(DenseLayer(units=10))
+mlp.add(ActivationLayer(function=softmax))
 
-test_data = (
-  test_data[0] / 255,
-  one_hot_encode(test_data[1])
-)
+mlp.compile()
 
-mlp = MLP()
-mlp.add(InputLayer(784))
-mlp.add(DenseLayer(30, tanh, drop_probability=0.1))
-mlp.add(OutputLayer(10, softmax, binary_cross_entropy_cost))
-mlp.initialize_random_weights()
-mlp.build()
 mlp.fit(
   train_data=train_data,
-  epochs=20,
-  learning_rate=0.01,
-  batch_size=100,
+  epochs=5,
+  batch_size=32,
   validation_data=validation_data
 )
+
+test_accu, test_loss = mlp.test(test_data)
+print(f'\nTest:\tLoss: {test_loss}\tAccu: {test_accu}')
