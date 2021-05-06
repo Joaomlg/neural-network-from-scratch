@@ -96,7 +96,8 @@ class MLP:
   def predict(self, input_data: np.array) -> np.array:
     return self.feedforward(input_data)
 
-  def test(self, input_data: np.array, target: np.array) -> np.array:
+  def test(self, test_data: Tuple[np.array, np.array]) -> np.array:
+    input_data, target = test_data
     predict = self.feedforward(input_data)
     accuracy = self.metric.compare(predict, target)
     loss = self.cost.loss(predict, target)
