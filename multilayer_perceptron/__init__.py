@@ -45,7 +45,7 @@ class MLP:
       for epoch in range(epochs):
         t0 = time()
         for i, (x, y) in enumerate(generate_batches(train_data, batch_size)):
-          predict = self.feedforward(x)
+          predict = self.feedforward(x, training=True)
 
           train_loss = self.cost.loss(predict, y)
           train_accuracy = self.metric.compare(predict, y)
@@ -64,7 +64,7 @@ class MLP:
         if validation_data:
           xvalid, yvalid = validation_data
           
-          valid_predict = self.feedforward(xvalid)
+          valid_predict = self.predict(xvalid)
 
           valid_loss = self.cost.loss(valid_predict, yvalid)
           valid_accuracy = self.metric.compare(valid_predict, yvalid)
@@ -78,9 +78,11 @@ class MLP:
     else:
       print('\nDone.')
 
-  def feedforward(self, input_data: np.array) -> np.array:
+  def feedforward(self, input_data: np.array, training: bool) -> np.array:
     activation = input_data
     for layer in self.layers:
+      if not training and isinstance(layer, DropoutLayer):
+        continue
       activation = layer.forward(activation)
     return activation
   
@@ -94,11 +96,11 @@ class MLP:
     self.optimizer.optimize(self.layers)
 
   def predict(self, input_data: np.array) -> np.array:
-    return self.feedforward(input_data)
+    return self.feedforward(input_data, training=False)
 
   def test(self, test_data: Tuple[np.array, np.array]) -> np.array:
     input_data, target = test_data
-    predict = self.feedforward(input_data)
+    predict = self.predict(input_data)
     accuracy = self.metric.compare(predict, target)
     loss = self.cost.loss(predict, target)
     return accuracy, loss

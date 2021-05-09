@@ -33,6 +33,7 @@ mlp.add(MaxPooling2DLayer(pool_shape=(2, 2), stride=(2, 2)))
 mlp.add(FlattenLayer())
 mlp.add(DenseLayer(units=64))
 mlp.add(ActivationLayer(function=relu))
+mlp.add(DropoutLayer(drop_probability=0.5))
 mlp.add(DenseLayer(units=10))
 mlp.add(ActivationLayer(function=softmax))
 

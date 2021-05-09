@@ -107,6 +107,29 @@ class ActivationLayer(AbstractLayer):
     return dout * self.function(self.prev_input, derivative=True)
 
 
+class DropoutLayer(AbstractLayer):
+  def __init__(self, drop_probability: float):
+    super().__init__()
+    self.keep_probability = 1 - drop_probability
+    self.scale = 1 / self.keep_probability if self.keep_probability > 0 else 0
+    self.mask = None
+  
+  @property
+  def output_shape(self) -> tuple:
+    return self.input_shape
+  
+  @output_shape.setter
+  def output_shape(self, value):
+    pass
+
+  def forward(self, x: np.array) -> np.array:
+    self.mask = np.random.binomial(1, self.keep_probability, size=self.output_shape)
+    return x * self.mask * self.scale
+
+  def backward(self, dout: np.array) -> np.array:
+    return dout * self.mask * self.scale
+
+
 class FlattenLayer(AbstractLayer):
   @property
   def output_shape(self) -> tuple:
