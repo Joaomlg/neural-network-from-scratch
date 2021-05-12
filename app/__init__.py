@@ -7,6 +7,7 @@ import numpy as np
 import json
 import os
 import webbrowser
+from waitress import serve
 
 class WebApp:
   def __init__(self, mlp: 'MLP', port=8080):
@@ -16,7 +17,9 @@ class WebApp:
 
     self.app = Flask('WebApp', template_folder=template_folder, static_folder=static_folder)
     self.mlp = mlp
+    self.host = '0.0.0.0'
     self.port = port
+    self.server_url = f'http://localhost:{self.port}'
 
   def run(self):
     @self.app.route('/')
@@ -31,7 +34,9 @@ class WebApp:
       prob = result[num]
       return make_response(json.dumps({'result': num, 'probability': prob}), 200)
     
-    server = Thread(target=self.app.run, kwargs={'host': '0.0.0.0', 'port': self.port})
+    server = Thread(target=serve, args=[self.app], kwargs={'host': self.host, 'port': self.port})
     server.start()
 
-    webbrowser.open_new_tab(f'http://localhost:{self.port}')
+    print(f'Serving web app on {self.server_url}')
+
+    webbrowser.open_new_tab(self.server_url)
