@@ -1,4 +1,5 @@
 import numpy as np
+import webbrowser
 
 from data import MNIST
 
@@ -9,6 +10,8 @@ from multilayer_perceptron.optimizers import *
 from multilayer_perceptron.costs import *
 from multilayer_perceptron.metrics import *
 from multilayer_perceptron.utils import format_data
+
+from app import WebApp
 
 
 mnist_dataset = MNIST()
@@ -41,10 +44,13 @@ mlp.compile()
 
 mlp.fit(
   train_data=train_data,
-  epochs=5,
+  epochs=30,
   batch_size=32,
   validation_data=validation_data
 )
 
 test_accu, test_loss = mlp.test(test_data)
 print(f'\nTest:\tLoss: {test_loss}\tAccu: {test_accu}')
+
+webapp = WebApp(mlp)
+webapp.run()
