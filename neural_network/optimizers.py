@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from multilayer_perceptron.layers import AbstractLayer
+from neural_network.layers import AbstractLayer
 
 
 class AbstractOptimizer(ABC):

@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from multilayer_perceptron.layers import Conv2DLayer
+from neural_network.layers import Conv2DLayer
 
 class Conv2DLayersTestCase(unittest.TestCase):
   def test_output_shape(self):

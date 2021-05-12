@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from multilayer_perceptron.layers import DenseLayer
+from neural_network.layers import DenseLayer
 
 class DenseLayerTestCase(unittest.TestCase):  
   def test_dense_layer_forward(self):

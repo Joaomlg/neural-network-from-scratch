@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from multilayer_perceptron.layers import MaxPooling2DLayer
+from neural_network.layers import MaxPooling2DLayer
 
 class MaxPoolingLayerTestCase(unittest.TestCase):
   def test_output_shape(self):

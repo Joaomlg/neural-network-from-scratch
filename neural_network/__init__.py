@@ -3,11 +3,11 @@ import numpy as np
 from time import time
 from datetime import timedelta, datetime
 
-from multilayer_perceptron.layers import *
-from multilayer_perceptron.optimizers import AbstractOptimizer
-from multilayer_perceptron.costs import AbstractCost
-from multilayer_perceptron.metrics import AbstractMetric
-from multilayer_perceptron.utils import generate_batches
+from neural_network.layers import *
+from neural_network.optimizers import AbstractOptimizer
+from neural_network.costs import AbstractCost
+from neural_network.metrics import AbstractMetric
+from neural_network.utils import generate_batches
 
 class Network:
   def __init__(self, optimizer: AbstractOptimizer, cost: AbstractCost, metric: AbstractMetric):
@@ -67,7 +67,7 @@ class Network:
           self.train_loss_per_iter.append(train_loss)
           self.train_accu_per_iter.append(train_accuracy)
 
-        print(f'Train\tAccu: {train_accuracy:.3f}\tLoss: {train_loss:.3f}')
+        print(f'Train:\tAccu: {train_accuracy:.3f}\tLoss: {train_loss:.3f}')
 
         if validation_data:
           xvalid, yvalid = validation_data

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import numpy as np
 
-from multilayer_perceptron.utils import probability_to_onehot
+from neural_network.utils import probability_to_onehot
 
 class AbstractMetric(ABC):
   @abstractmethod

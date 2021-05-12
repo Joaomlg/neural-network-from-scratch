@@ -1,8 +1,8 @@
 import unittest
 import numpy as np
 
-from multilayer_perceptron.layers import ActivationLayer
-from multilayer_perceptron.activations import *
+from neural_network.layers import ActivationLayer
+from neural_network.activations import *
 
 class ReluLayerTestCase(unittest.TestCase):
   def test_1d_forward(self):

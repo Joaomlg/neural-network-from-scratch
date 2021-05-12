@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from multilayer_perceptron.layers import FlattenLayer
+from neural_network.layers import FlattenLayer
 
 class FlattenLayerTestCase(unittest.TestCase):
   def test_flatten_layer_forward(self):

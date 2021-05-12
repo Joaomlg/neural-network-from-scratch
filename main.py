@@ -3,13 +3,13 @@ import webbrowser
 
 from data import MNIST
 
-from multilayer_perceptron import Network
-from multilayer_perceptron.layers import *
-from multilayer_perceptron.activations import *
-from multilayer_perceptron.optimizers import *
-from multilayer_perceptron.costs import *
-from multilayer_perceptron.metrics import *
-from multilayer_perceptron.utils import format_data
+from neural_network import Network
+from neural_network.layers import *
+from neural_network.activations import *
+from neural_network.optimizers import *
+from neural_network.costs import *
+from neural_network.metrics import *
+from neural_network.utils import format_data
 
 from app import WebApp
 
