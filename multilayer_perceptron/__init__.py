@@ -9,7 +9,7 @@ from multilayer_perceptron.costs import AbstractCost
 from multilayer_perceptron.metrics import AbstractMetric
 from multilayer_perceptron.utils import generate_batches
 
-class MLP:
+class Network:
   def __init__(self, optimizer: AbstractOptimizer, cost: AbstractCost, metric: AbstractMetric):
     self.layers : List[AbstractLayer] = []
 
