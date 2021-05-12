@@ -1,7 +1,7 @@
 from typing import List, Tuple
 import numpy as np
 from time import time
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from multilayer_perceptron.layers import *
 from multilayer_perceptron.optimizers import AbstractOptimizer
@@ -48,8 +48,10 @@ class MLP:
   ):
     xtrain, ytrain = train_data
     try:
+      print('Training')
       for epoch in range(epochs):
-        print(f'\nEpoch: {epoch + 1}/{epochs}')
+        now = datetime.now()
+        print(f'\nEpoch: {epoch + 1}/{epochs}\t{now}')
         t0 = time()
         for i, (x, y) in enumerate(generate_batches(train_data, batch_size)):
 
@@ -91,7 +93,7 @@ class MLP:
     except KeyboardInterrupt:
       print('\nStoped!\n')
     else:
-      print('\nDone.\n')
+      print('\nDone\n')
 
   def feedforward(self, input_data: np.array, training: bool) -> np.array:
     activation = input_data
