@@ -1,5 +1,10 @@
 INTERPRETER := python3
 
+default: run
+
+run:
+	$(INTERPRETER) main.py
+
 test:
 	$(INTERPRETER) -m unittest discover tests/
 
