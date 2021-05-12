@@ -44,13 +44,11 @@ mlp.compile()
 
 mlp.fit(
   train_data=train_data,
-  epochs=30,
+  epochs=5,
   batch_size=32,
-  validation_data=validation_data
+  validation_data=validation_data,
+  test_data=test_data
 )
-
-test_accu, test_loss = mlp.test(test_data)
-print(f'\nTest:\tLoss: {test_loss}\tAccu: {test_accu}')
 
 webapp = WebApp(mlp)
 webapp.run()
