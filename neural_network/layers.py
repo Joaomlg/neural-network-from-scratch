@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC, abstractmethod, abstractproperty
 import numpy as np
 
 class AbstractLayer(ABC):
@@ -11,24 +11,34 @@ class AbstractLayer(ABC):
     self.bias_gradient = None
     self.prev_input = None
   
-  @property
-  def dimension(self):
-    return len(self.output_shape)
+  @abstractproperty
+  def has_weights(self) -> bool:
+    pass
   
   @property
-  def has_weights(self):
-    return self.weights is not None
+  def weights_shape(self) -> tuple:
+    return ()
+  
+  def update_weights(self, weights: np.array):
+    self.weights = weights
+  
+  @abstractproperty
+  def has_bias(self) -> bool:
+    pass
 
   @property
-  def has_bias(self):
-    return self.bias is not None
+  def bias_size(self) -> int:
+    return 0
+  
+  def update_bias(self, bias: np.array):
+    self.bias = bias
   
   @property
-  def input_size(self):
+  def input_size(self) -> int:
     return np.prod(self.input_shape)
   
   @property
-  def output_size(self):
+  def output_size(self) -> int:
     return np.prod(self.output_shape)
 
   def initialize(self):
@@ -42,18 +52,20 @@ class AbstractLayer(ABC):
   def backward(self, dout: np.array) -> np.array:
     raise NotImplementedError
 
-  def update_weights(self, weights: np.array):
-    self.weights = weights
-
-  def update_bias(self, bias: np.array):
-    self.bias = bias
-
 
 class InputLayer(AbstractLayer):
   def __init__(self, shape: tuple):
     super().__init__()
     self.input_shape = shape
     self.output_shape = shape
+  
+  @property
+  def has_weights(self):
+    return False
+
+  @property
+  def has_bias(self):
+    return False
 
   def forward(self, x: np.array) -> np.array:
     return x
@@ -69,12 +81,24 @@ class DenseLayer(AbstractLayer):
     self.output_shape = (units, )
   
   @property
+  def has_weights(self):
+    return True
+
+  @property
+  def has_bias(self):
+    return True
+  
+  @property
   def weights_shape(self) -> tuple:
     return (self.input_size, self.output_size)
+  
+  @property
+  def bias_size(self) -> int:
+    return self.units
 
   def initialize(self):
     self.weights = np.random.randn(*self.weights_shape) * 0.1
-    self.bias = np.zeros(self.units)
+    self.bias = np.zeros(self.bias_size)
 
   def forward(self, x: np.array) -> np.array:
     self.prev_input = x.copy()
@@ -91,6 +115,14 @@ class ActivationLayer(AbstractLayer):
     super().__init__()
     self.function = function
   
+  @property
+  def has_weights(self):
+    return False
+
+  @property
+  def has_bias(self):
+    return False
+
   @property
   def output_shape(self) -> tuple:
     return self.input_shape
@@ -115,6 +147,14 @@ class DropoutLayer(AbstractLayer):
     self.mask = None
   
   @property
+  def has_weights(self):
+    return False
+
+  @property
+  def has_bias(self):
+    return False
+
+  @property
   def output_shape(self) -> tuple:
     return self.input_shape
   
@@ -131,6 +171,14 @@ class DropoutLayer(AbstractLayer):
 
 
 class FlattenLayer(AbstractLayer):
+  @property
+  def has_weights(self):
+    return False
+
+  @property
+  def has_bias(self):
+    return False
+
   @property
   def output_shape(self) -> tuple:
     return self.input_shape
@@ -155,12 +203,24 @@ class Conv2DLayer(AbstractLayer):
     self.stride = self.vertical_stride, self.horizontal_stride = stride
   
   @property
+  def has_weights(self):
+    return True
+
+  @property
+  def has_bias(self):
+    return True
+
+  @property
   def weights_shape(self) -> tuple:
     return (self.num_of_kernels, self.kernel_channels, *self.kernel_shape)
+  
+  @property
+  def bias_size(self) -> int:
+    return self.num_of_kernels
 
   def initialize(self):
     self.weights = np.random.randn(*self.weights_shape) * 0.1
-    self.bias = np.zeros(self.num_of_kernels)
+    self.bias = np.zeros(self.bias_size)
   
   @property
   def output_height(self) -> int:
@@ -222,6 +282,14 @@ class MaxPooling2DLayer(AbstractLayer):
     self.stride = self.vertical_stride, self.horizontal_stride = stride
     self.prev_output = None
   
+  @property
+  def has_weights(self):
+    return False
+
+  @property
+  def has_bias(self):
+    return False
+
   @property
   def output_height(self):
     input_channels, input_height, input_width = self.input_shape
