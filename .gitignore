@@ -132,5 +132,5 @@ dmypy.json
 .vscode/
 
 # Gzip data
-data/*.gz
-data/*.gzip
+*.gz
+*.gzip

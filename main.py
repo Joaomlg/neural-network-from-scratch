@@ -40,6 +40,8 @@ network.add(DropoutLayer(drop_probability=0.5))
 network.add(DenseLayer(units=10))
 network.add(ActivationLayer(function=softmax))
 
+network.load_config('config.pkl.gz')
+
 network.compile()
 
 network.fit(
@@ -49,6 +51,8 @@ network.fit(
   validation_data=validation_data,
   test_data=test_data
 )
+
+network.save_config()
 
 webapp = WebApp(network)
 webapp.run()

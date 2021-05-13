@@ -2,6 +2,8 @@ from typing import List, Tuple
 import numpy as np
 from time import time
 from datetime import timedelta, datetime
+import pickle
+import gzip
 
 from neural_network.layers import *
 from neural_network.optimizers import AbstractOptimizer
@@ -12,6 +14,7 @@ from neural_network.utils import generate_batches
 class Network:
   def __init__(self, optimizer: AbstractOptimizer, cost: AbstractCost, metric: AbstractMetric):
     self.layers : List[AbstractLayer] = []
+    self.config_file = None
 
     self.optimizer = optimizer
     self.cost = cost
@@ -121,3 +124,40 @@ class Network:
     accuracy = self.metric.compare(predict, target)
     loss = self.cost.loss(predict, target)
     return accuracy, loss
+  
+  def save_config(self):
+    configs = []
+    for i, layer in enumerate(self.layers):
+      configs.append({
+        'type': type(layer).__name__,
+        'weights_size': layer.weights_size,
+        'weights': layer.weights,
+        'bias_size': layer.bias_size,
+        'bias': layer.bias
+      })
+    with gzip.open(self.config_file, 'wb') as file:
+      pickle.dump(configs, file)
+  
+  def load_config(self, config_file):
+    try:
+      with gzip.open(config_file, 'rb') as file:
+        configs = pickle.load(file)
+    except FileNotFoundError:
+      pass
+    else:
+      if len(configs) != len(self.layers):
+        raise Exception('Invalid config file: number of layers does not match')
+
+      for i, layer in enumerate(self.layers):
+        config = configs[i]
+
+        if config['type'] != type(layer).__name__:
+          raise Exception(f'Invalid config file: {i}° layer type does not match')
+        
+        if layer.weights_size != config['weights_size'] or layer.bias_size != config['bias_size']:
+          raise Exception(f'Invalid config file: weights or bias shapes does not match')
+        
+        layer.weights = config['weights']
+        layer.bias = config['bias']
+    finally:
+      self.config_file = config_file
