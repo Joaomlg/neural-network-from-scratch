@@ -14,6 +14,10 @@ var defaultBoard = new DrawingBoard.Board('default-board', {
   enlargeYourContainer: true
 });
 
+defaultBoard.ev.bind('board:reset', () => {
+  $('#result').html('Result: Cleared');
+})
+
 async function predict() {
   const canvas = defaultBoard.canvas;
   const data = await processImage(canvas, 28, 28);
