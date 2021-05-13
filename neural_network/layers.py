@@ -19,6 +19,10 @@ class AbstractLayer(ABC):
   def weights_shape(self) -> tuple:
     return ()
   
+  @property
+  def weights_size(self) -> int:
+    return np.prod(self.weights_shape) if self.weights_shape else 0
+  
   def update_weights(self, weights: np.array):
     self.weights = weights
   
@@ -97,8 +101,10 @@ class DenseLayer(AbstractLayer):
     return self.units
 
   def initialize(self):
-    self.weights = np.random.randn(*self.weights_shape) * 0.1
-    self.bias = np.zeros(self.bias_size)
+    if self.weights is None:
+      self.weights = np.random.randn(*self.weights_shape) * 0.1
+    if self.bias is None:
+      self.bias = np.zeros(self.bias_size)
 
   def forward(self, x: np.array) -> np.array:
     self.prev_input = x.copy()
@@ -219,8 +225,10 @@ class Conv2DLayer(AbstractLayer):
     return self.num_of_kernels
 
   def initialize(self):
-    self.weights = np.random.randn(*self.weights_shape) * 0.1
-    self.bias = np.zeros(self.bias_size)
+    if self.weights is None:
+      self.weights = np.random.randn(*self.weights_shape) * 0.1
+    if self.bias is None:
+      self.bias = np.zeros(self.bias_size)
   
   @property
   def output_height(self) -> int:
