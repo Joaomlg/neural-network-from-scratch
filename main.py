@@ -1,5 +1,4 @@
-import numpy as np
-import webbrowser
+import sys
 
 from data import MNIST
 
@@ -44,15 +43,15 @@ network.load_config('config.pkl.gz')
 
 network.compile()
 
-network.fit(
-  train_data=train_data,
-  epochs=5,
-  batch_size=32,
-  validation_data=validation_data,
-  test_data=test_data
-)
-
-network.save_config()
+if 'train' in sys.argv:
+  network.fit(
+    train_data=train_data,
+    epochs=5,
+    batch_size=32,
+    validation_data=validation_data,
+    test_data=test_data
+  )
+  network.save_config()
 
 webapp = WebApp(network)
 webapp.run()
