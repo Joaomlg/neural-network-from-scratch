@@ -1,6 +1,6 @@
 var defaultBoard = new DrawingBoard.Board('default-board', {
   color: "#000",
-  size: 20,
+  size: 30,
   webStorage: false,
   controls: [
     { 
