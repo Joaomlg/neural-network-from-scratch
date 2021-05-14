@@ -16,11 +16,9 @@ from app import WebApp
 mnist_dataset = MNIST()
 train_data, validation_data, test_data = mnist_dataset.load()
 
-NUM_OF_SAMPLES = 1000
-
-train_data = format_data(train_data, samples=NUM_OF_SAMPLES, input_shape=(1, 28, 28))
-validation_data = format_data(validation_data, samples=NUM_OF_SAMPLES, input_shape=(1, 28, 28))
-test_data = format_data(test_data, samples=NUM_OF_SAMPLES, input_shape=(1, 28, 28))
+train_data = format_data(train_data, input_shape=(1, 28, 28))
+validation_data = format_data(validation_data, input_shape=(1, 28, 28))
+test_data = format_data(test_data, input_shape=(1, 28, 28))
 
 network = Network(
   optimizer=GradientDescentOptmizer(learning_rate=0.01),
